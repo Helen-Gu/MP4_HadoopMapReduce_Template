@@ -22,7 +22,9 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -75,15 +77,15 @@ public class TopTitles extends Configured implements Tool {
         return jobB.waitForCompletion(true) ? 0 : 1;
     }
 
-    public static String readHDFSFile(String path, Configuration conf) throws IOException{
-        Path pt=new Path(path);
+    public static String readHDFSFile(String path, Configuration conf) throws IOException {
+        Path pt = new Path(path);
         FileSystem fs = FileSystem.get(pt.toUri(), conf);
         FSDataInputStream file = fs.open(pt);
-        BufferedReader buffIn=new BufferedReader(new InputStreamReader(file));
+        BufferedReader buffIn = new BufferedReader(new InputStreamReader(file));
 
         StringBuilder everything = new StringBuilder();
         String line;
-        while( (line = buffIn.readLine()) != null) {
+        while ((line = buffIn.readLine()) != null) {
             everything.append(line);
             everything.append("\n");
         }
@@ -110,7 +112,7 @@ public class TopTitles extends Configured implements Tool {
         String delimiters;
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
 
             Configuration conf = context.getConfiguration();
 
@@ -121,61 +123,87 @@ public class TopTitles extends Configured implements Tool {
             this.delimiters = readHDFSFile(delimitersPath, conf);
         }
 
-
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            //TODO
-            //context.write(<Text>, <IntWritable>); // pass this output to reducer
+            StringTokenizer stk = new StringTokenizer(value.toString(), delimiters);
+            while (stk.hasMoreTokens()) {
+                String e = stk.nextToken().trim().toLowerCase();
+                if (stopWords.contains(e) == false) {
+                    context.write(new Text(e), new IntWritable(1));
+                }
+            }
         }
     }
 
     public static class TitleCountReduce extends Reducer<Text, IntWritable, Text, IntWritable> {
         @Override
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            //TODO
-            //context.write(<Text>, <IntWritable>); // pass this output to TopTitlesMap mapper
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            int sum = 0;
+            for (IntWritable e : values) {
+                sum += e.get();
+            }
+            context.write(key, new IntWritable(sum));
         }
     }
 
     public static class TopTitlesMap extends Mapper<Text, Text, NullWritable, TextArrayWritable> {
-        //TODO
+        Integer N;
+        List<Pair<Integer, String>> toSort = new ArrayList<>();
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
         }
 
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-            //TODO
+            Pair<Integer, String> p = new Pair<>(Integer.valueOf(value.toString()), key.toString());
+            toSort.add(p);
         }
 
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            //TODO
-            //Cleanup operation starts after all mappers are finished
-            //context.write(<NullWritable>, <TextArrayWritable>); // pass this output to reducer
+            Collections.sort(toSort, Collections.reverseOrder());
+            int copySize = Math.min(toSort.size(), N);
+            String[] stringArray = new String[copySize];
+            for (int i = 0; i < copySize; i++) {
+                stringArray[i] = toSort.get(i).toString();
+            }
+            context.write(NullWritable.get(), new TextArrayWritable(stringArray));
         }
     }
 
     public static class TopTitlesReduce extends Reducer<NullWritable, TextArrayWritable, Text, IntWritable> {
-        // TODO
+        Integer N;
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
         }
 
         @Override
-        public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context) throws IOException, InterruptedException {
-            //TODO
-            //context.write(<Text>, <IntWritable>); // print as final output
+        public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context)
+                throws IOException, InterruptedException {
+            List<Pair<Integer, String>> toSort = new ArrayList<>();
+
+            for (TextArrayWritable arr : values) {
+                for (Writable w : arr.get()) {
+                    String e = ((Text) w).toString();
+                    Pair<Integer, String> p = Pair.fromString(e);
+                    toSort.add(p);
+                }
+            }
+            Collections.sort(toSort, Collections.reverseOrder());
+
+            for (Integer i = 0; i < N; i++) {
+                context.write(new Text(toSort.get(i).second), new IntWritable(toSort.get(i).first));
+            }
         }
     }
 }
 
-class Pair<A extends Comparable<? super A>,
-        B extends Comparable<? super B>>
+class Pair<A extends Comparable<? super A>, B extends Comparable<? super B>>
         implements Comparable<Pair<A, B>> {
 
     public final A first;
@@ -186,9 +214,7 @@ class Pair<A extends Comparable<? super A>,
         this.second = second;
     }
 
-    public static <A extends Comparable<? super A>,
-            B extends Comparable<? super B>>
-    Pair<A, B> of(A first, B second) {
+    public static <A extends Comparable<? super A>, B extends Comparable<? super B>> Pair<A, B> of(A first, B second) {
         return new Pair<A, B>(first, second);
     }
 

@@ -31,7 +31,7 @@ public class TopPopularLinks extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
-        //TODO
+        // TODO
     }
 
     public static class IntArrayWritable extends ArrayWritable {
@@ -50,37 +50,35 @@ public class TopPopularLinks extends Configured implements Tool {
     }
 
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
-        //TODO
+        // TODO
     }
 
     public static class LinkCountReduce extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
-        //TODO
+        // TODO
     }
 
     public static class TopLinksMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
         }
 
-       //TODO
+        // TODO
     }
 
     public static class TopLinksReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
         }
-        //TODO
+        // TODO
 
     }
 }
 
-
-class Pair<A extends Comparable<? super A>,
-        B extends Comparable<? super B>>
+class Pair<A extends Comparable<? super A>, B extends Comparable<? super B>>
         implements Comparable<Pair<A, B>> {
 
     public final A first;
@@ -91,9 +89,7 @@ class Pair<A extends Comparable<? super A>,
         this.second = second;
     }
 
-    public static <A extends Comparable<? super A>,
-            B extends Comparable<? super B>>
-    Pair<A, B> of(A first, B second) {
+    public static <A extends Comparable<? super A>, B extends Comparable<? super B>> Pair<A, B> of(A first, B second) {
         return new Pair<A, B>(first, second);
     }
 
