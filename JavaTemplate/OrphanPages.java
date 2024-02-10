@@ -47,16 +47,17 @@ public class OrphanPages extends Configured implements Tool {
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            //TODO
-            //context.write(<IntWritable>, <IntWritable>); // pass this output to reducer
+            // TODO
+            // context.write(<IntWritable>, <IntWritable>); // pass this output to reducer
         }
     }
 
     public static class OrphanPageReduce extends Reducer<IntWritable, IntWritable, IntWritable, NullWritable> {
         @Override
-        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            //TODO
-            //context.write(<IntWritable>, <NullWritable>); // print as final output
+        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            // TODO
+            // context.write(<IntWritable>, <NullWritable>); // print as final output
         }
     }
 }

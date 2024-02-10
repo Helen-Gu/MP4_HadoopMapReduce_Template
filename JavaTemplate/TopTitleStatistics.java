@@ -77,15 +77,15 @@ public class TopTitleStatistics extends Configured implements Tool {
         return jobB.waitForCompletion(true) ? 0 : 1;
     }
 
-    public static String readHDFSFile(String path, Configuration conf) throws IOException{
-        Path pt=new Path(path);
+    public static String readHDFSFile(String path, Configuration conf) throws IOException {
+        Path pt = new Path(path);
         FileSystem fs = FileSystem.get(pt.toUri(), conf);
         FSDataInputStream file = fs.open(pt);
-        BufferedReader buffIn=new BufferedReader(new InputStreamReader(file));
+        BufferedReader buffIn = new BufferedReader(new InputStreamReader(file));
 
         StringBuilder everything = new StringBuilder();
         String line;
-        while( (line = buffIn.readLine()) != null) {
+        while ((line = buffIn.readLine()) != null) {
             everything.append(line);
             everything.append("\n");
         }
@@ -112,7 +112,7 @@ public class TopTitleStatistics extends Configured implements Tool {
         String delimiters;
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
 
             Configuration conf = context.getConfiguration();
 
@@ -123,55 +123,58 @@ public class TopTitleStatistics extends Configured implements Tool {
             this.delimiters = readHDFSFile(delimitersPath, conf);
         }
 
-
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            //TODO
-            //context.write(<Text>, <IntWritable>); // pass this output to reducer
+            // TODO
+            // context.write(<Text>, <IntWritable>); // pass this output to reducer
         }
     }
 
     public static class TitleCountReduce extends Reducer<Text, IntWritable, Text, IntWritable> {
         @Override
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            //TODO
-            //context.write(<Text>, <IntWritable>); // pass this output to TopTitlesStatMap mapper
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            // TODO
+            // context.write(<Text>, <IntWritable>); // pass this output to TopTitlesStatMap
+            // mapper
         }
     }
 
     public static class TopTitlesStatMap extends Mapper<Text, Text, NullWritable, TextArrayWritable> {
-        //TODO
+        // TODO
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
         }
 
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-            //TODO
+            // TODO
         }
 
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            //TODO
-            //Cleanup operation starts after all mappers are finished
-            //context.write(<NullWritable>, <TextArrayWritable>); // pass this output to reducer
+            // TODO
+            // Cleanup operation starts after all mappers are finished
+            // context.write(<NullWritable>, <TextArrayWritable>); // pass this output to
+            // reducer
         }
     }
 
     public static class TopTitlesStatReduce extends Reducer<NullWritable, TextArrayWritable, Text, IntWritable> {
-        //TODO
+        // TODO
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
         }
 
         @Override
-        public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context) throws IOException, InterruptedException {
+        public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context)
+                throws IOException, InterruptedException {
             Integer sum, mean, max, min, var;
-            //TODO
+            // TODO
 
             context.write(new Text("Mean"), new IntWritable(mean));
             context.write(new Text("Sum"), new IntWritable(sum));
@@ -183,9 +186,7 @@ public class TopTitleStatistics extends Configured implements Tool {
 
 }
 
-
-class Pair<A extends Comparable<? super A>,
-        B extends Comparable<? super B>>
+class Pair<A extends Comparable<? super A>, B extends Comparable<? super B>>
         implements Comparable<Pair<A, B>> {
 
     public final A first;
@@ -196,9 +197,7 @@ class Pair<A extends Comparable<? super A>,
         this.second = second;
     }
 
-    public static <A extends Comparable<? super A>,
-            B extends Comparable<? super B>>
-    Pair<A, B> of(A first, B second) {
+    public static <A extends Comparable<? super A>, B extends Comparable<? super B>> Pair<A, B> of(A first, B second) {
         return new Pair<A, B>(first, second);
     }
 
