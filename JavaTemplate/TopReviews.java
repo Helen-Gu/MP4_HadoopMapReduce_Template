@@ -51,31 +51,31 @@ public class TopReviews extends Configured implements Tool {
         FileSystem fs = FileSystem.get(conf);
         Path tmpPath = new Path("./preF-output");
 
-        //Job jobA = ...
-		//configure jobA
-        //FileInputFormat.setInputPaths(jobA, new Path(args[0]));
-        //FileOutputFormat.setOutputPath(jobA, tmpPath);
-		//run jobA
-		//...
+        // Job jobA = ...
+        // configure jobA
+        // FileInputFormat.setInputPaths(jobA, new Path(args[0]));
+        // FileOutputFormat.setOutputPath(jobA, tmpPath);
+        // run jobA
+        // ...
 
-        //Job jobB = ...
-		//configure jobB
-		//FileInputFormat.setInputPaths(jobB, tmpPath);
-        //FileOutputFormat.setOutputPath(jobB, new Path(args[1]));
+        // Job jobB = ...
+        // configure jobB
+        // FileInputFormat.setInputPaths(jobB, tmpPath);
+        // FileOutputFormat.setOutputPath(jobB, new Path(args[1]));
 
         return 0;
-        //return jobB.waitForCompletion(true) ? 0 : 1;
+        // return jobB.waitForCompletion(true) ? 0 : 1;
     }
 
-    public static String readHDFSFile(String path, Configuration conf) throws IOException{
-        Path pt=new Path(path);
+    public static String readHDFSFile(String path, Configuration conf) throws IOException {
+        Path pt = new Path(path);
         FileSystem fs = FileSystem.get(pt.toUri(), conf);
         FSDataInputStream file = fs.open(pt);
-        BufferedReader buffIn=new BufferedReader(new InputStreamReader(file));
+        BufferedReader buffIn = new BufferedReader(new InputStreamReader(file));
 
         StringBuilder everything = new StringBuilder();
         String line;
-        while( (line = buffIn.readLine()) != null) {
+        while ((line = buffIn.readLine()) != null) {
             everything.append(line);
             everything.append("\n");
         }
@@ -102,7 +102,7 @@ public class TopReviews extends Configured implements Tool {
         String delimiters;
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
 
             Configuration conf = context.getConfiguration();
 
@@ -115,15 +115,16 @@ public class TopReviews extends Configured implements Tool {
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            //Calculate scores and pass along with business_id to the reducer
-            //context.write(new Text(business_id), new IntWritable(weight * stars));
+            // Calculate scores and pass along with business_id to the reducer
+            // context.write(new Text(business_id), new IntWritable(weight * stars));
         }
     }
 
     public static class ReviewCountReduce extends Reducer<Text, IntWritable, Text, DoubleWritable> {
         @Override
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            //Output average scores
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            // Output average scores
         }
     }
 
@@ -132,20 +133,21 @@ public class TopReviews extends Configured implements Tool {
         Integer N;
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
             this.N = conf.getInt("N", 10);
         }
 
         @Override
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-            //Calculate weighted review score for each business ID, keeping the count of map <=N
+            // Calculate weighted review score for each business ID, keeping the count of
+            // map <=N
         }
 
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            //output the entries of the map
-            //context.write(NullWritable.get(), entry);
+            // output the entries of the map
+            // context.write(NullWritable.get(), entry);
         }
     }
 
@@ -154,21 +156,21 @@ public class TopReviews extends Configured implements Tool {
         Integer N;
 
         @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
             this.N = conf.getInt("N", 10);
         }
 
         @Override
-        public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context) throws IOException, InterruptedException {
-            //TODO - output top 10 business_id 
-            //context.write(business_id, NullWritable.get());
+        public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context)
+                throws IOException, InterruptedException {
+            // TODO - output top 10 business_id
+            // context.write(business_id, NullWritable.get());
         }
     }
 }
 
-class Pair<A extends Comparable<? super A>,
-        B extends Comparable<? super B>>
+class Pair<A extends Comparable<? super A>, B extends Comparable<? super B>>
         implements Comparable<Pair<A, B>> {
 
     public final A first;
@@ -179,9 +181,7 @@ class Pair<A extends Comparable<? super A>,
         this.second = second;
     }
 
-    public static <A extends Comparable<? super A>,
-            B extends Comparable<? super B>>
-    Pair<A, B> of(A first, B second) {
+    public static <A extends Comparable<? super A>, B extends Comparable<? super B>> Pair<A, B> of(A first, B second) {
         return new Pair<A, B>(first, second);
     }
 
